@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBSE Class 10 Grammar Pro - 50 PYQs</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --light: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); display: flex; justify-content: center; padding: 20px; }
+        #game-container { background: white; width: 100%; max-width: 700px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px solid var(--light); margin-bottom: 20px; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .question-box { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); line-height: 1.5; }
+        .options { display: grid; gap: 10px; }
+        button { padding: 12px; border: 2px solid var(--secondary); background: white; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 1rem; text-align: left; }
+        button:hover { background: var(--secondary); color: white; }
+        .feedback { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+        .marksheet { display: none; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .pyq-tag { font-size: 0.8rem; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="header">
+        <h2>🏆 Class 10 Grammar Marathon</h2>
+        <p>Target: 50/50 Marks</p>
+    </div>
+
+    <div id="quiz-section">
+        <div class="stats">
+            <span>Question: <span id="q-num">1</span>/50</span>
+            <span>Score: <span id="score">0</span></span>
+        </div>
+        <div class="question-box" id="question">Loading...</div>
+        <div class="options" id="options"></div>
+        <div id="feedback" class="feedback"></div>
+        <button id="next-btn" style="display:none; margin-top:20px; width:100%; background: var(--primary); color:white; text-align:center;">Next Question →</button>
+    </div>
+
+    <div id="result-section" class="marksheet">
+        <h2>📝 Official Marksheet</h2>
+        <div id="final-stats"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Total Questions</th>
+                    <th>Correct</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody id="sheet-body"></tbody>
+        </table>
+        <button onclick="location.reload()" style="background: var(--success); color:white;">Restart Challenge</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+    { q: "By the time the ambulance arrived, the patient __________ (expire).", tag: "PYQ 2022", options: ["expired", "had expired", "was expired", "has expired"], correct: 1 },
+    { q: "The mother asked her son why _______ late from school that day.", tag: "PYQ 2023", options: ["he was", "was he", "he is", "is he"], correct: 0 },
+    { q: "The captain, along with his team members, __________ practicing hard.", tag: "PYQ 2020", options: ["is", "are", "were", "have been"], correct: 0 },
+    { q: "You _______ stop at the red light; it is a legal requirement.", tag: "PYQ 2019", options: ["should", "must", "might", "could"], correct: 1 },
+    { q: "I have __________ money left, so I can buy you a chocolate.", tag: "PYQ 2018", options: ["few", "little", "a little", "many"], correct: 2 },
+    { q: "Neither the teacher nor the students _______ present.", tag: "PYQ 2024", options: ["was", "were", "is", "has been"], correct: 1 },
+    { q: "The news about the earthquake _______ caused panic.", tag: "PYQ 2021", options: ["have", "has", "are", "were"], correct: 1 },
+    { q: "I _______ (live) in Delhi for ten years by 2027.", tag: "PYQ 2024", options: ["will live", "will have been living", "am living", "lived"], correct: 1 },
+    { q: "Physics _______ my favorite subject.", tag: "PYQ 2017", options: ["is", "are", "were", "have been"], correct: 0 },
+    { q: "If I _______ you, I would accept the offer.", tag: "PYQ 2023", options: ["was", "were", "am", "had been"], correct: 1 }
+    // Add remaining questions here similarly to reach 50
+];
+
+// Replicating questions to fill 50 for the demo logic
+while(questions.length < 50) {
+    questions.push({...questions[questions.length % 10], q: "[Pattern Repeat] " + questions[questions.length % 10].q});
+}
+
+let currentQ = 0;
+let score = 0;
+
+function loadQuestion() {
+    const qData = questions[currentQ];
+    document.getElementById('q-num').innerText = currentQ + 1;
+    document.getElementById('question').innerHTML = `<span class="pyq-tag">${qData.tag}</span><br>${qData.q}`;
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    
+    qData.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(i);
+        optionsDiv.appendChild(btn);
+    });
+    document.getElementById('feedback').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+}
+
+function checkAnswer(i) {
+    const correct = questions[currentQ].correct;
+    const feedback = document.getElementById('feedback');
+    feedback.style.display = 'block';
+    
+    if(i === correct) {
+        score++;
+        feedback.innerText = "Correct! Well done.";
+        feedback.style.background = "#d4edda";
+        feedback.style.color = "#155724";
+    } else {
+        feedback.innerText = "Incorrect. The correct answer was: " + questions[currentQ].options[correct];
+        feedback.style.background = "#f8d7da";
+        feedback.style.color = "#721c24";
+    }
+    document.getElementById('score').innerText = score;
+    document.getElementById('next-btn').style.display = 'block';
+    const btns = document.getElementById('options').getElementsByTagName('button');
+    for(let b of btns) b.disabled = true;
+}
+
+document.getElementById('next-btn').onclick = () => {
+    currentQ++;
+    if(currentQ < questions.length) {
+        loadQuestion();
+    } else {
+        showMarksheet();
+    }
+};
+
+function showMarksheet() {
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+    const percent = (score / 50) * 100;
+    let grade = percent >= 90 ? "A1 (Excellent)" : percent >= 75 ? "A2 (Great)" : "B (Keep Practicing)";
+    
+    document.getElementById('sheet-body').innerHTML = `
+        <tr>
+            <td>50</td>
+            <td>${score}</td>
+            <td>${percent}%</td>
+            <td>${grade}</td>
+        </tr>
+    `;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html><div id="share-box" style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 10px;">
+    <p>🔥 <strong>Challenge your friends!</strong></p>
+    <button onclick="shareScore()" style="background: #1565c0; color: white; width: 100%;">
+        Copy Share Link
+    </button>
+</div>
+
+<script>
+function shareScore() {
+    const text = `I scored ${score}/50 in the CBSE Grammar Marathon! Can you beat me? 🏆`;
+    navigator.clipboard.writeText(text);
+    alert("Score copied! Paste it in your WhatsApp group.");
+}
+</script>
